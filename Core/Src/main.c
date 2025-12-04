@@ -27,6 +27,7 @@ void delay_us(uint16_t us)
     TIM6->CNT = 0;
     while (TIM6->CNT < us);
 }
+
 	void delayMicroseconds(uint32_t us)
 {
     uint32_t startTick = SysTick->VAL;  // Ð?c giá tr? hi?n t?i c?a SysTick
@@ -287,12 +288,24 @@ uint8_t DHT22_Check_Response (void)
 	while ((HAL_GPIO_ReadPin (DHT22_PORT, DHT22_PIN)));   // wait for the pin to go low
 	return Response;
 }
+int32_t DHT22_Wait_Pin(GPIO_PinState state, uint32_t timeout_us) {
+    // Timeout tính theo s? l?n l?p (u?c lu?ng) ho?c dùng timer
+    uint32_t count = 0;
+    // Gi? s? m?i vòng l?p t?n ~1us (ho?c tùy ch?nh theo th?c t?)
+    uint32_t max_count = timeout_us * 5; 
+    
+    while (HAL_GPIO_ReadPin(DHT22_PORT, DHT22_PIN) != state) {
+        count++;
+        if (count > max_count) return -1; // L?i timeout
+    }
+    return 0; // OK
+}
 uint8_t DHT22_Read (void)
 {
 	uint8_t i,j;
 	for (j=0;j<8;j++)
 	{
-		while (!(HAL_GPIO_ReadPin (DHT22_PORT, DHT22_PIN)));   // wait for the pin to go high
+		if (DHT22_Wait_Pin(GPIO_PIN_SET, 100) < 0) return 0;
 		delay_us (40);   // wait for 40 us
 
 		if (!(HAL_GPIO_ReadPin (DHT22_PORT, DHT22_PIN)))   // if the pin is low
@@ -300,11 +313,12 @@ uint8_t DHT22_Read (void)
 			i&= ~(1<<(7-j));   // write 0
 		}
 		else i|= (1<<(7-j));  // if the pin is high, write 1
-		while ((HAL_GPIO_ReadPin (DHT22_PORT, DHT22_PIN)));  // wait for the pin to go low
+		if (DHT22_Wait_Pin(GPIO_PIN_RESET, 100) < 0) return 0;
 	}
 
 	return i;
 }
+// Hàm s?a d?i có Timeout
 
 void ADC1_Init(void)
 {
@@ -584,43 +598,8 @@ if (mode == 1){
 uint16_t pwm_duty = (uint16_t)Tanh_Compute(&light_tanh, (float)adc_val);
 TIM2->CCR2 = pwm_duty;
 }
-//if (USART2->ISR & (1 << 5)) {
-//    c = USART2->RDR;  // d?c d? li?u
-//	GPIOA->BRR = 1 << 4;
-//}
-//else {
-//	GPIOA->BSRR = 1 << 4;
-//}
-//if (USART1->ISR & (1 << 5)) {
-//    c = USART1->RDR;  // d?c d? li?u
-//}
-//if (c == '1') {
-//    GPIOA->BSRR = 1 << 5; // bat LED
-//}
-//else if (c == '0') {
-//    GPIOA->BRR = 1 << 5; // tat LED
-//}
-//else if(c == 'r') {
-//	GPIOA->BRR = 1 << 4;
-//}
-//else if (c == 't') {
-//	GPIOA->BSRR = 1 << 4;
-//}
-
-		
-//		//delay_us(2000);
-//GPIOA->BSRR = 1 << 5; // Set
-//delay_us(65000);
-////		uint32_t start = uwTick;
-////		while((uwTick - start) <65){}
-//			GPIOA->BRR = 1<<5 ;//reset
-//delay_us(65000);
-//			uint32_t s = uwTick;
-//		while((uwTick - s) <65){}
-			
-		//GPIOA->ODR ^= (1<<5);
 		uint32_t start = uwTick;
-		while((uwTick - start) <100){}
+		while((uwTick - start) <500){}
   }
 }
 void USART1_IRQHandler(void)
@@ -676,34 +655,3 @@ if (mode == 0){
     }
 		
 	}
-
-/*
-void USART2_IRQHandler(void)
-{
-    
-   *str = USART2->RDR;
-	uint8_t i;
-	  if(rx_indx == 0){
-		for(i=0;i<100;i++)
-			rx_buffer[i]=0;
-			GPIOA->BRR = 1<<5 ;//reset
-		}
-		if(*str != 13){ // rxdata[0] !=13
-		   rx_buffer[rx_indx++] = rx_data[0];
-		}
-		else{
-		rx_indx = 0;
-			USART2->TDR = *"\n\r";//Transmit
-			const char *cmd = "LED ON";
-			char *ptr = rx_buffer;  
-			while (*ptr && (*ptr == *cmd)) { 
-				ptr++;
-				cmd++;
-			}
-			if (*cmd == '\0') {  // N?u duy?t h?t "LED ON" mà không có sai khác
-				GPIOA->BSRR = 1 << 5; // Set
-			}
-		}	
-		USART2->TDR = *str;//Transmit
-}
-*/

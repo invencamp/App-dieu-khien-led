@@ -28,8 +28,8 @@ Project File Date:  11/05/2025
 *** Using Compiler 'V6.24', folder: 'C:\Users\admin\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin'
 Rebuild target 'uart'
 assembling startup_stm32l073xx.s...
-../Core/Src/main.c(544): warning: passing 'volatile char[10]' to parameter of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
-  544 |             uint16_t new_sp = atoi(uart_rx_buffer);  // Chuy?n chu?i ? s?
+../Core/Src/main.c(558): warning: passing 'volatile char[10]' to parameter of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+  558 |             uint16_t new_sp = atoi(uart_rx_buffer);  // Chuy?n chu?i ? s?
       |                                    ^~~~~~~~~~~~~~
 C:\Users\admin\AppData\Local\Keil_v5\ARM\ARMCLANG\bin\..\include\stdlib.h(164): note: passing argument to parameter here
   164 | extern _ARMABI int atoi(const char * /*nptr*/) __attribute__((__nonnull__(1)));
@@ -37,7 +37,7 @@ C:\Users\admin\AppData\Local\Keil_v5\ARM\ARMCLANG\bin\..\include\stdlib.h(164): 
 1 warning generated.
 compiling main.c...
 linking...
-Program Size: Code=14660 RO-data=844 RW-data=8 ZI-data=1712  
+Program Size: Code=14704 RO-data=840 RW-data=8 ZI-data=1712  
 FromELF: creating hex file...
 "uart\uart.axf" - 0 Error(s), 1 Warning(s).
 
@@ -62,7 +62,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE@6.1.1
       Include file:  CMSIS/Core/Include/tz_context.h
-Build Time Elapsed:  00:00:02
+Build Time Elapsed:  00:00:04
 </pre>
 </body>
 </html>
